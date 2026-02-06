@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Be My Valentine?</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --pink: #ff7bac;
+        --pink-dark: #ff4b8b;
+        --cream: #fff7fb;
+        --purple: #a86fe2;
+        --text-dark: #42253b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Poppins", "Comic Sans MS", "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top left, #ffe4f2, #fdd3e7 30%, #f8bee0 60%, #f3a7d4 85%, #eda0d2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem 3rem;
+        color: var(--text-dark);
+      }
+
+      .card {
+        width: min(520px, 95vw);
+        padding: 3rem 2rem 2.5rem;
+        background: var(--cream);
+        border-radius: 30px;
+        text-align: center;
+        box-shadow: 0 35px 80px rgb(209 96 151 / 35%);
+        border: 3px solid rgb(255 255 255 / 70%);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::after,
+      .card::before {
+        content: "";
+        position: absolute;
+        width: 140px;
+        height: 140px;
+        background: rgb(255 182 218 / 50%);
+        border-radius: 50%;
+        filter: blur(0.5px);
+        z-index: 0;
+      }
+
+      .card::before {
+        top: -40px;
+        left: -20px;
+      }
+
+      .card::after {
+        bottom: -50px;
+        right: -35px;
+      }
+
+      .card h1 {
+        margin: 0 0 0.5rem;
+        font-size: clamp(2.4rem, 6vw, 3.2rem);
+        letter-spacing: 1px;
+      }
+
+      .card p {
+        margin: 0.25rem 0 1.2rem;
+        font-size: 1.1rem;
+      }
+
+      .buttons-area {
+        position: relative;
+        margin-top: 2.3rem;
+        height: 220px;
+        width: min(360px, 90%);
+        margin-inline: auto;
+      }
+
+      .buttons-area button {
+        position: absolute;
+        padding: 0.9rem 2.4rem;
+        font-size: 1.1rem;
+        border-radius: 999px;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s;
+        font-weight: 600;
+        box-shadow: 0 15px 40px rgb(255 122 172 / 40%);
+      }
+
+      #yes-btn {
+        background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+        color: white;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      #no-btn {
+        right: 0;
+        bottom: 0;
+        background: white;
+        color: var(--pink-dark);
+        border: 2px solid rgb(255 158 194 / 80%);
+        box-shadow: 0 12px 25px rgb(71 19 46 / 18%);
+      }
+
+      #yes-btn.ready {
+        animation: celebrate 0.7s ease forwards;
+      }
+
+      @keyframes celebrate {
+        0% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.08);
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      .tiny-heart {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        background: var(--purple);
+        transform: rotate(45deg);
+        top: 15px;
+        right: 18px;
+      }
+
+      .tiny-heart::before,
+      .tiny-heart::after {
+        content: "";
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--purple);
+      }
+
+      .tiny-heart::before {
+        top: -9px;
+        left: 0;
+      }
+
+      .tiny-heart::after {
+        left: -9px;
+        top: 0;
+      }
+
+      .note {
+        font-size: 0.95rem;
+        color: #a0618c;
+      }
+
+      dialog {
+        border: none;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 25px 50px rgb(0 0 0 / 25%);
+        font-family: inherit;
+        text-align: center;
+      }
+
+      dialog::backdrop {
+        background: rgb(0 0 0 / 40%);
+      }
+
+      .close-dialog {
+        margin-top: 1rem;
+        border: none;
+        border-radius: 999px;
+        padding: 0.6rem 1.4rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: var(--pink);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card" aria-live="polite">
+      <div class="tiny-heart" aria-hidden="true"></div>
+      <h1>Do you want to be my Valentine?</h1>
+      <p>
+        I promise there will be unlimited desserts, cozy movie nights, and extra hugs
+        if you say yes.
+      </p>
+      <p class="note">(Hint: the right answer involves lots of chocolate.)</p>
+
+      <div class="buttons-area" aria-label="Choose yes or no">
+        <button id="yes-btn" type="button">Yes!</button>
+        <button id="no-btn" type="button">Nope</button>
+      </div>
+    </main>
+
+    <dialog id="oops-dialog">
+      <p>You must have clicked the wrong one. Wanna try that again? 💖</p>
+      <button class="close-dialog" type="button">Okay!</button>
+    </dialog>
+
+    <script>
+      const yesBtn = document.querySelector('#yes-btn');
+      const noBtn = document.querySelector('#no-btn');
+      const buttonPen = document.querySelector('.buttons-area');
+      const dialog = document.querySelector('#oops-dialog');
+      const dialogClose = dialog.querySelector('.close-dialog');
+
+      let dodgeCount = 0;
+      const maxDodges = 5;
+
+      const setButtonToCenter = () => {
+        yesBtn.style.top = '50%';
+        yesBtn.style.left = '50%';
+        yesBtn.style.transform = 'translate(-50%, -50%)';
+      };
+
+      const moveButtonToRandomSpot = () => {
+        const areaRect = buttonPen.getBoundingClientRect();
+        const btnRect = yesBtn.getBoundingClientRect();
+        const maxX = areaRect.width - btnRect.width;
+        const maxY = areaRect.height - btnRect.height;
+        const randomLeft = Math.random() * maxX;
+        const randomTop = Math.random() * maxY;
+        yesBtn.style.left = `${randomLeft}px`;
+        yesBtn.style.top = `${randomTop}px`;
+        yesBtn.style.transform = 'translate(0, 0)';
+      };
+
+      const handleYesHover = () => {
+        dodgeCount += 1;
+
+        if (dodgeCount < maxDodges) {
+          moveButtonToRandomSpot();
+          yesBtn.setAttribute('aria-live', 'assertive');
+          yesBtn.textContent = dodgeCount === maxDodges - 1 ? 'Almost...' : 'Catch me!';
+          return;
+        }
+
+        yesBtn.removeEventListener('mouseenter', handleYesHover);
+        yesBtn.classList.add('ready');
+        yesBtn.textContent = 'Fine, you caught me';
+        setButtonToCenter();
+      };
+
+      yesBtn.addEventListener('mouseenter', handleYesHover);
+
+      yesBtn.addEventListener('click', () => {
+        if (dodgeCount < maxDodges) {
+          return;
+        }
+        yesBtn.textContent = 'Yay! ❤️';
+        buttonPen.insertAdjacentHTML(
+          'beforeend',
+          '<p class="note" style="position:absolute;bottom:-2.6rem;width:100%;">Best. Decision. Ever.</p>'
+        );
+      });
+
+      noBtn.addEventListener('click', () => {
+        if (typeof dialog.showModal === 'function') {
+          dialog.showModal();
+        } else {
+          alert('You must have made a mistake, please try again!');
+        }
+      });
+
+      dialogClose.addEventListener('click', () => dialog.close());
+      setButtonToCenter();
+    </script>
+  </body>
+</html>
